@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8" />
+<style type="text/css">
+	#result{
+		border:1px dashed gray;
+		font-size:70%;
+	}
+	#result p{
+		background-color:#f0f0f0;
+		margin:0;
+		margin-bottom:2px;
+		white-space:pre;
+	}
+.hidden, math annotation{display:none;}
+</style>
+
+<script type="text/javascript" src="mustache.js"></script>
+
+<script type="text/javascript">
+	var escapes = {"\\":"\\textbackslash ",
+		"~": "\\textasciitilde ",
+		"^": "\\textasciicircum "
+	}
+	function latexEscape(s){
+		return s.replace(/([&%$#{}^_~\\])/g, function(x){
+				return escapes[x] || "\\"+x;
+		});
+	}
+
+	// function from https://gist.github.com/cms/369133
+	function getStyle(el, styleProp) {
+		var value, defaultView = el.ownerDocument.defaultView;
+		// W3C standard way:
+		if (defaultView && defaultView.getComputedStyle) {
+			// sanitize property name to css notation (hypen separated words eg. font-Size)
+			styleProp = styleProp.replace(/([A-Z])/g, "-$1").toLowerCase();
+			return defaultView.getComputedStyle(el, null).getPropertyValue(styleProp);
+		} else if (el.currentStyle) { // IE
+			// sanitize property name to camelCase
+			styleProp = styleProp.replace(/\-(\w)/g, function(str, letter) {
+					return letter.toUpperCase();
+					});
+			value = el.currentStyle[styleProp];
+			// convert other units to pixels on IE
+			if (/^\d+(em|pt|%|ex)?$/i.test(value)) {
+				return (function(value) {
+						var oldLeft = el.style.left, oldRsLeft = el.runtimeStyle.left;
+						el.runtimeStyle.left = el.currentStyle.left;
+						el.style.left = value || 0;
+						value = el.style.pixelLeft + "px";
+						el.style.left = oldLeft;
+						el.runtimeStyle.left = oldRsLeft;
+						return value;
+						})(value);
+			}
+			return value;
+		}
+	}
+function reduceSpaces(t){
+	return t.replace(/^\s+|\s+$/g, ' ');
+}
+
+var templates = {
+  "h1": [
+  {
+    "selector": "*",
+    "template": "\\section{<<content>>}"
+  }],
+  "i" : [
+  {
+   "selector": "*",
+   "template": "\\textit{<<content>>}"
+  }
+  ],
+  "b": [{
+   "selector": "*",
+   "template": "\\textbf{<<content>>}"
+  }],
+  "math": [{
+    "selector": "[mode='display']",
+    "template": "\\[<<content>>\\]"
+  },{
+    "selector": "*",
+    "template": "$<<content>>$" 
+  }],
+  "mfrac": [{
+   "selector" :"*",
+	 "template": "\\frac{<<>first>>}{<<>second>>}"
+	}],
+	"msqrt": [{
+		"selector": "*",
+		"template": "\\sqrt{<<content>>}"
+	}],
+	"msup": [{
+		"selector": "*",
+		"template": "<<>first>>^<<>second>>"
+	}],
+  "*default": [{
+    "selector": "*",
+    "template": "<<content>>"
+  }
+  ]
+}	
+
+var partials = {
+	"first" : "<<#nth>>0<</nth>>",
+	"second" : "<<#nth>>1<</nth>>"
+}
+
+for(x in partials){
+	var p = partials[x];
+	p ="{{=<< >>=}}"+p;
+	partials[x] = p;
+}
+
+var getVar = function(el){
+   return  el.replace("<<","").replace(">>",""); 
+}
+
+var variables = {
+  "nth" : function(){
+    return function(t, render) {
+			//var curr = el;
+		 var n = parseInt(getVar(t));
+		 var el =  variables["element"];
+     var curr =el.children;
+		 var ret = getText(curr[n]);
+		 variables["element"] = el;
+		 return ret;
+   }
+  }
+}
+
+function getText(element) {
+    var text = [];
+    var name = element.nodeName.toLowerCase();
+    var tplmatch, template;
+		var myvariables = variables;
+		Mustache.escape = function(s){return s;}//latexEscape;
+		var myescape = latexEscape;
+    if(templates[name]){
+       tplmatch = templates[name];
+    }else{
+       tplmatch = templates['*default'];
+    }
+    for(i = 0;i<tplmatch.length;i++){
+      // log(name+"; "+tplmatch[i].template+", "+tplmatch[i].selector);
+      if(matches(element, tplmatch[i].selector)){
+         template = tplmatch[i].template;
+         break;
+      }  
+    }
+    template = "{{=<< >>=}}"+template
+    //log(name+": "+ template);
+		var display = getStyle(element,'display');
+		if(display =='none') return '';
+    for (var i= 0, n= element.childNodes.length; i<n; i++) {
+        var child= element.childNodes[i];
+        if (child.nodeType===1 && child.tagName.toLowerCase()!=='script')
+            text.push(getText(child));
+        else if (child.nodeType===3)
+            text.push(myescape(reduceSpaces(child.data)));
+    }
+    myvariables["content"] =  text.join('');
+    myvariables["element"] = element;
+    if(display=='block')
+      return "\n" + Mustache.render(template, myvariables, partials) + "\n";
+    else
+      return Mustache.render(template, myvariables, partials) ;
+}
+
+
+</script>
+</head>
+<body>
+	<article> 
+	<h1>Nadpis</h1>
+	<p><i>Hello</i> <b>world</b>. Zvláští \ $ % znaky ~.</p>
+	<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+      <mrow>
+        <msup><mi>a</mi><mn>2</mn></msup>
+        <mo>+</mo>
+        <msup><mi>b</mi><mn>2</mn></msup>
+        <mo>=</mo>
+        <msup><mi>c</mi><mn>2</mn></msup>
+      </mrow>
+    </math>
+<span class="hidden">Skrytej text</span>
+</p>
+<math mode="display" xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>x</mi>
+    <mo>=</mo>
+    <mfrac>
+      <mrow>
+        <mo form="prefix">&#x2212;<!-- − --></mo>
+        <mi>b</mi>
+        <mo>&#x00B1;<!-- &PlusMinus; --></mo>
+        <msqrt>
+          <msup>
+            <mi>b</mi>
+            <mn>2</mn>
+          </msup>
+          <mo>&#x2212;<!-- − --></mo>
+          <mn>4</mn>
+          <mo>&#x2062;<!-- &InvisibleTimes; --></mo>
+          <mi>a</mi>
+          <mo>&#x2062;<!-- &InvisibleTimes; --></mo>
+          <mi>c</mi>
+        </msqrt>
+      </mrow>
+      <mrow>
+        <mn>2</mn>
+        <mo>&#x2062;<!-- &InvisibleTimes; --></mo>
+        <mi>a</mi>
+      </mrow>
+    </mfrac>
+  </mrow>
+  <annotation encoding="TeX">
+     x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}
+  </annotation>
+  <annotation encoding="StarMath 5.0">
+     x={-b plusminus sqrt {b^2 - 4 ac}} over {2 a}
+  </annotation>
+</math>
+	</article>
+	<div id="result">
+
+	</div>
+</body>
+
+<script type="text/javascript">
+	log = function(t) {
+		var hlaska = document.createElement("p");
+		hlaska.innerHTML = t;
+		var result = document.querySelector("#result")
+		result.appendChild(hlaska);
+	}
+	var el = document.querySelector("article");
+	var display = el.style;
+	log(latexEscape("\\textit{pokus % ~ ^ $ }"))
+	for(x in display){
+		//log(x+": ");
+	}
+  log("display: "+ getStyle(el,'display'));
+	var i = document.querySelector("i")
+	matches = function(el,selector){
+		if(el.matches)
+			return el.matches(selector);
+		else if(el.mozMatchesSelector)
+			return el.mozMatchesSelector(selector);
+		else if(el.webkitMatchesSelector)
+			return el.webkitMatchesSelector(selector);
+	}
+  var x = matches(i,"p i")
+	log("match: "+x);
+	log(getText(el))
+	
+</script>
+</html>
