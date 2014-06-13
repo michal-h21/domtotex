@@ -1,8 +1,84 @@
 var Textpl = (function(Mustache){
 var M = {};		
+
+var tplStart = "<<";
+var tplEnd   = ">>";
+var brackets = "{{="+tplStart+" "+tplEnd+"=}}";
+var partials = {};
+
+var addPartial = function(name, tpl){
+  partials[name] = brackets+tpl;
+}
+
+// Move this to better place?
+addPartial(	"first", "<<#nth>>0<</nth>>")
+addPartial("second", "<<#nth>>1<</nth>>")
+
+/*
+for(x in partials){
+	var p = partials[x];
+	p =brackets+p;
+	partials[x] = p;
+}
+*/
+
+var getVar = function(el){
+	 log(el)
+   return  el.replace(tplStart,"").replace(tplEnd,""); 
+}
+
+var variables = {}
+
+var addFunction = function(name, fn){
+	variables[name]=function(){ return fn};
+}
+
+addFunction("nth", //function(){
+    //return 
+		function(t, render) {
+			//var curr = el;
+		 var n = parseInt(t);
+		 var el =  variables["element"];
+     var curr =el.children;
+		 var ret = getText(curr[n]);
+		 variables["element"] = el;
+		 return ret;
+   }
+  //}
+);
+
+addFunction("attr", function(t, render){
+		 var el =  variables["element"];
+		 return el.getAttribute(t);
+//
+		});
+
+addFunction("link", function(t, render){
+		var t = brackets + t
+		var href = render(t);
+		var isLocal = ( !/^(http)/.test(href) ) || ( href.indexOf(location.hostname) > -1 );
+		var tpl = isLocal && "loc-link" || "syst-link";
+
+		return  render(brackets+tplStart + "#" + tpl + tplEnd + href + tplStart +"/" + tpl + tplEnd);
+
+		})
+addFunction("loc-link", function(t, render){
+		return "\\hyperlink{"+render(t)+"}";
+});
+
+
+	var matches = function(el,selector){
+		if(el.matches)
+			return el.matches(selector);
+		else if(el.mozMatchesSelector)
+			return el.mozMatchesSelector(selector);
+		else if(el.webkitMatchesSelector)
+			return el.webkitMatchesSelector(selector);
+	}
+
 function getTemplate(element){
     var tplmatch, template;
-    var name = element.nodeName.toLowerCase();
+    var name = element.nodeName.toLowerCase() || element;
 		Mustache.escape = function(s){return s;}//latexEscape;
     if(templates[name]){
        tplmatch = templates[name];
@@ -16,10 +92,23 @@ function getTemplate(element){
          break;
       }  
     }
-    template = "{{=<< >>=}}"+template;
+    template = brackets+template;
 		return template;
 }
+
+var render = function(element, vars){
+	var template = getTemplate(element);
+	var locvariables = variables;
+	for(x in vars) locvariables[x] = vars[x];
+	return Mustache.render(template, locvariables, partials);
+}
+
   M.getTemplate = getTemplate;
+	M.tplStart		= tplStart;
+	M.tplEnd			= tplEnd;
+	M.addPartial	= addPartial;
+	M.addFunction = addFunction;
+	M.render			= render;
 	return M;
 })(Mustache);
 
@@ -27,14 +116,6 @@ var Domtotex = (function(Textpl){
 	var M = {};
 
 	// does element match the selector?
-	var matches = function(el,selector){
-		if(el.matches)
-			return el.matches(selector);
-		else if(el.mozMatchesSelector)
-			return el.mozMatchesSelector(selector);
-		else if(el.webkitMatchesSelector)
-			return el.webkitMatchesSelector(selector);
-	}
 
 	var par = document;
 	var el = par;
@@ -86,7 +167,6 @@ var Domtotex = (function(Textpl){
 		}
 	}
   
-	M.matches = matches;
 	M.select = select;
 	M.latexEscape = latexEscape;
 	M.getStyle = getStyle;
