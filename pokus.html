@@ -60,8 +60,9 @@ var templates = {
 		"template": "<<>first>>^<<>second>>"
 	}],
 	"a": [{
-		"template": "\\href{<<#link>><<#attr>>href<</attr>><</link>>}{<<content>>}",
-		"selector": "*"
+		"template": "<<#link>><<#attr>>href<</attr>><</link>>{<<content>>}",
+		"selector": "*",
+		"packages": ["hyperref"]
 	}],
   "*default": [{
     "selector": "*",
@@ -70,7 +71,7 @@ var templates = {
   ]
 }	
 
-
+Textpl.loadTemplates(templates);
 function reduceSpaces(t){
 	return t.replace(/^\s+|\s+$/g, ' ');
 }
@@ -118,7 +119,7 @@ function getText(element) {
         <msup><mi>c</mi><mn>2</mn></msup>
       </mrow>
     </math>
-<span class="hidden">Skrytej text</span>
+		<span class="hidden">Skrytej text</span>. <a href="http://tex.stackexchange.com">tex.sx</a>.
 </p>
 <math mode="display" xmlns="http://www.w3.org/1998/Math/MathML">
   <mrow>
