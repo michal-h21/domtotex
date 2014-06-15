@@ -76,6 +76,7 @@ function reduceSpaces(t){
 	return t.replace(/^\s+|\s+$/g, ' ');
 }
 
+Textpl.addTemplate("img").tpl("\\includegraphics{<<#attr>>src<</attr>>}");
  
 //var getTemplate = Textpl.getTemplate;
 
@@ -109,6 +110,9 @@ function getText(element) {
 	<article> 
 	<h1>Nadpis</h1>
 	<p><i>Hello</i> <b>world</b>. Zvláští \ $ % znaky ~. Co třeba <a href="#nadpis">odkaz?</a></p>
+	<div>
+	<img src="pokus.png" />
+	</div>
 	<p>
 <math xmlns="http://www.w3.org/1998/Math/MathML">
       <mrow>

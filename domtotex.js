@@ -14,6 +14,40 @@ var loadTemplates = function(t){
 	}
 }
 
+var templateMaker = (function(){
+  var name = "";
+	var par  = {};
+	var selector = "*";
+	var pos = null;
+	var create = function(n){
+    name = n;
+		selector = "*";
+		pos = null;
+		return this;
+	}
+	var position = function(p){pos = p; return this;}
+	var selector = function(s){selector = s; return this}
+	var tpl  = function(t){
+    var c = {"selector": selector, "template":t}; 
+    var x = templates[name] || [];
+		if(pos)
+      x.splice(pos, 0, c);
+    else
+		  x.push(c);
+		templates[name] = x 
+	}
+	M.create = create;
+	M.selector = selector;
+	M.tpl  = tpl;
+	return M;
+}
+)();
+var addTemplate= function(name){ 
+  return templateMaker.create(name)
+}
+
+
+
 var addPartial = function(name, tpl){
   partials[name] = brackets+tpl;
 }
@@ -66,7 +100,6 @@ addFunction("link", function(t, render){
 		var href = render(t);
 		var isLocal =  !/^(http)/.test(href) ;
 		var tpl = isLocal && "loc-link" || "syst-link";
-		log(isLocal);
 		return  render(brackets+tplStart + "#" + tpl + tplEnd + href + tplStart +"/" + tpl + tplEnd);
 
 		})
@@ -97,6 +130,7 @@ function getTemplate(element){
     }else{
        tplmatch = templates['*default'];
     }
+		if(name=="img"){log("name"+tplmatch.length)}
     for(i = 0;i<tplmatch.length;i++){
       // log(name+"; "+tplmatch[i].template+", "+tplmatch[i].selector);
       if(matches(element, tplmatch[i].selector)){
@@ -115,7 +149,8 @@ var render = function(element, vars){
 	return Mustache.render(template, locvariables, partials);
 }
 
-M.loadTemplates = loadTemplates;
+  M.loadTemplates = loadTemplates;
+	M.addTemplate = addTemplate;
   M.getTemplate = getTemplate;
 	M.tplStart		= tplStart;
 	M.tplEnd			= tplEnd;
@@ -124,6 +159,8 @@ M.loadTemplates = loadTemplates;
 	M.render			= render;
 	return M;
 })(Mustache);
+
+
 
 var Domtotex = (function(Textpl){
 	var M = {};
