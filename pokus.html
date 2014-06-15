@@ -17,92 +17,15 @@
 
 <script type="text/javascript" src="mustache.js"></script>
 <script type="text/javascript" src="domtotex.js"></script>
+<script type="text/javascript" src="textemplates.js"><script>
 
 <script type="text/javascript">
-	var latexEscape = Domtotex.latexEscape;
-	var getStyle = Domtotex.getStyle;
 
 	// function from https://gist.github.com/cms/369133
 
-var templates = {
-  "h1": [
-  {
-    "selector": "*",
-    "template": '\\section{<<content>>}'
-  }],
-  "i" : [
-  {
-   "selector": "*",
-   "template": "\\textit{<<content>>}"
-  }
-  ],
-  "b": [{
-   "selector": "*",
-   "template": "\\textbf{<<content>>}"
-  }],
-  "math": [{
-    "selector": "[mode='display']",
-    "template": "\\[<<content>>\\]"
-  },{
-    "selector": "*",
-    "template": "$<<content>>$" 
-  }],
-  "mfrac": [{
-   "selector" :"*",
-	 "template": "\\frac{<<>first>>}{<<>second>>}"
-	}],
-	"msqrt": [{
-		"selector": "*",
-		"template": "\\sqrt{<<content>>}"
-	}],
-	"msup": [{
-		"selector": "*",
-		"template": "<<>first>>^<<>second>>"
-	}],
-	"a": [{
-		"template": "<<#link>><<#attr>>href<</attr>><</link>>{<<content>>}",
-		"selector": "*",
-		"packages": ["hyperref"]
-	}],
-  "*default": [{
-    "selector": "*",
-    "template": "<<content>>"
-  }
-  ]
-}	
 
-Textpl.loadTemplates(templates);
-function reduceSpaces(t){
-	return t.replace(/^\s+|\s+$/g, ' ');
-}
-
-Textpl.addTemplate("img").tpl("\\includegraphics{<<#attr>>src<</attr>>}");
  
 //var getTemplate = Textpl.getTemplate;
-
-function getText(element) {
-    var text = [];
-		//var template = getTemplate(element);
-		var myvariables = {}//variables;
-		var display = getStyle(element,'display');
-		if(display =='none') return '';
-		var myescape = latexEscape;
-    //log(name+": "+ template);
-    for (var i= 0, n= element.childNodes.length; i<n; i++) {
-        var child= element.childNodes[i];
-        if (child.nodeType===1 && child.tagName.toLowerCase()!=='script')
-            text.push(getText(child));
-        else if (child.nodeType===3)
-            text.push(myescape(reduceSpaces(child.data)));
-    }
-    myvariables["content"] =  text.join('');
-    myvariables["element"] = element;
-    if(display=='block')
-      return "\n" + Textpl.render(element, myvariables) + "\n";
-    else
-      return Textpl.render(element, myvariables) ;
-}
-
 
 </script>
 </head>
@@ -174,10 +97,13 @@ function getText(element) {
 		var result = document.querySelector("#result")
 		result.appendChild(hlaska);
 	}
+	var latexEscape = Domtotex.latexEscape;
+	var getStyle = Domtotex.getStyle;
 	var el = Domtotex.select("article")//document.querySelector();
 	log(latexEscape("\\textit{pokus % ~ ^ $ }"))
   log("display: "+ getStyle(el,'display'));
 	var i = document.querySelector("i")
+	var getText = Domtotex.getText;
   //var matches = Domtotex.matches;
   //var x = matches(i,"p i")
 	//log("match: "+x);

@@ -1,11 +1,11 @@
 var Textpl = (function(Mustache){
 var M = {};		
 
+var partials = {};
+var templates = {}
 var tplStart = "<<";
 var tplEnd   = ">>";
 var brackets = "{{="+tplStart+" "+tplEnd+"=}}";
-var partials = {};
-var templates = {}
 
 var loadTemplates = function(t){
   for(k in t){
@@ -42,19 +42,15 @@ var templateMaker = (function(){
 	return M;
 }
 )();
+
 var addTemplate= function(name){ 
   return templateMaker.create(name)
 }
-
-
 
 var addPartial = function(name, tpl){
   partials[name] = brackets+tpl;
 }
 
-// Move this to better place?
-addPartial(	"first", "<<#nth>>0<</nth>>")
-addPartial("second", "<<#nth>>1<</nth>>")
 
 /*
 for(x in partials){
@@ -64,6 +60,7 @@ for(x in partials){
 }
 */
 
+// this can be removed
 var getVar = function(el){
 	 log(el)
    return  el.replace(tplStart,"").replace(tplEnd,""); 
@@ -75,41 +72,6 @@ var addFunction = function(name, fn){
 	variables[name]=function(){ return fn};
 }
 
-addFunction("nth", //function(){
-    //return 
-		function(t, render) {
-			//var curr = el;
-		 var n = parseInt(t);
-		 var el =  variables["element"];
-     var curr =el.children;
-		 var ret = getText(curr[n]);
-		 variables["element"] = el;
-		 return ret;
-   }
-  //}
-);
-
-addFunction("attr", function(t, render){
-		 var el =  variables["element"];
-		 return el.getAttribute(t);
-//
-		});
-
-addFunction("link", function(t, render){
-		var t = brackets + t
-		var href = render(t);
-		var isLocal =  !/^(http)/.test(href) ;
-		var tpl = isLocal && "loc-link" || "syst-link";
-		return  render(brackets+tplStart + "#" + tpl + tplEnd + href + tplStart +"/" + tpl + tplEnd);
-
-		})
-addFunction("loc-link", function(t, render){
-		return "\\hyperlink{"+render(t)+"}";
-});
-
-addFunction("syst-link", function(t, render){
-				return "\\href{"+render(t)+"}";
-});
 
 
 	var matches = function(el,selector){
@@ -153,10 +115,13 @@ var render = function(element, vars){
 	M.addTemplate = addTemplate;
   M.getTemplate = getTemplate;
 	M.tplStart		= tplStart;
+	M.brackets    = brackets;
 	M.tplEnd			= tplEnd;
+	M.variables		= variables;
 	M.addPartial	= addPartial;
 	M.addFunction = addFunction;
 	M.render			= render;
+
 	return M;
 })(Mustache);
 
@@ -216,9 +181,38 @@ var Domtotex = (function(Textpl){
 			return value;
 		}
 	}
+
+function reduceSpaces(t){
+	return t.replace(/^\s+|\s+$/g, ' ');
+}
+
+function getText(element) {
+    var text = [];
+		//var template = getTemplate(element);
+		var myvariables = {}//variables;
+		var display = getStyle(element,'display');
+		if(display =='none') return '';
+		var myescape = latexEscape;
+    //log(name+": "+ template);
+    for (var i= 0, n= element.childNodes.length; i<n; i++) {
+        var child= element.childNodes[i];
+        if (child.nodeType===1 && child.tagName.toLowerCase()!=='script')
+            text.push(getText(child));
+        else if (child.nodeType===3)
+            text.push(myescape(reduceSpaces(child.data)));
+    }
+    myvariables["content"] =  text.join('');
+    myvariables["element"] = element;
+    if(display=='block')
+      return "\n" + Textpl.render(element, myvariables) + "\n";
+    else
+      return Textpl.render(element, myvariables) ;
+}
+
   
 	M.select = select;
 	M.latexEscape = latexEscape;
 	M.getStyle = getStyle;
+	M.getText = getText;
 	return M;
 })(Textpl);
