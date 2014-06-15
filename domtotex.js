@@ -5,6 +5,14 @@ var tplStart = "<<";
 var tplEnd   = ">>";
 var brackets = "{{="+tplStart+" "+tplEnd+"=}}";
 var partials = {};
+var templates = {}
+
+var loadTemplates = function(t){
+  for(k in t){
+    var v = templates[k] || [];
+		templates[k] = v.concat(t[k]);
+	}
+}
 
 var addPartial = function(name, tpl){
   partials[name] = brackets+tpl;
@@ -56,14 +64,18 @@ addFunction("attr", function(t, render){
 addFunction("link", function(t, render){
 		var t = brackets + t
 		var href = render(t);
-		var isLocal = ( !/^(http)/.test(href) ) || ( href.indexOf(location.hostname) > -1 );
+		var isLocal =  !/^(http)/.test(href) ;
 		var tpl = isLocal && "loc-link" || "syst-link";
-
+		log(isLocal);
 		return  render(brackets+tplStart + "#" + tpl + tplEnd + href + tplStart +"/" + tpl + tplEnd);
 
 		})
 addFunction("loc-link", function(t, render){
 		return "\\hyperlink{"+render(t)+"}";
+});
+
+addFunction("syst-link", function(t, render){
+				return "\\href{"+render(t)+"}";
 });
 
 
@@ -103,6 +115,7 @@ var render = function(element, vars){
 	return Mustache.render(template, locvariables, partials);
 }
 
+M.loadTemplates = loadTemplates;
   M.getTemplate = getTemplate;
 	M.tplStart		= tplStart;
 	M.tplEnd			= tplEnd;
