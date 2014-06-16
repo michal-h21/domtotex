@@ -55,41 +55,17 @@ var templates = {
 Textpl.loadTemplates(templates);
 
 Textpl.addTemplate("img").tpl("\\includegraphics{<<#attr>>src<</attr>>}");
-Textpl.addFunction("nth", //function(){
-    //return 
-		function(t, render) {
-			//var curr = el;
-		 var n = parseInt(t);
-		 var el =  variables["element"];
-     var curr =el.children;
-		 var ret = getText(curr[n]);
-		 variables["element"] = el;
-		 return ret;
-   }
-  //}
-);
 
-Textpl.addFunction("attr", function(t, render){
-		 var el =  variables["element"];
-		 return el.getAttribute(t);
-//
-		});
+Textpl.addTemplate("abbr").tpl("\\htmlacro[<<#attr>>title<</attr>>]{<<content>>}");
 
-Textpl.addFunction("link", function(t, render){
-		var t = brackets + t
-		var href = render(t);
-		var isLocal =  !/^(http)/.test(href) ;
-		var tpl = isLocal && "loc-link" || "syst-link";
-		return  render(brackets+tplStart + "#" + tpl + tplEnd + href + tplStart +"/" + tpl + tplEnd);
+Textpl.addTemplate("aside").tpl("\\htmlaside{<<content>>}")
 
-		})
-Textpl.addFunction("loc-link", function(t, render){
-		return "\\hyperlink{"+render(t)+"}";
-});
+Textpl.addTemplate("blockquote").tpl("\\begin{htmlblockqoute}{<<#attr>>cite<</attr>>}\n<<content>>\n\\end{htmlblockqoute}");
 
-Textpl.addFunction("syst-link", function(t, render){
-				return "\\href{"+render(t)+"}";
-});
+Textpl.addTemplate("dl").tpl("\\begin{description}\n<<content>>\n\\end{description}");
 
-Textpl.addPartial("first", "<<#nth>>0<</nth>>")
-Textpl.addPartial("second", "<<#nth>>1<</nth>>")
+Textpl.addTemplate("dt").tpl("\\item[<<content>>]");
+
+Textpl.addTemplate("figure").tpl("\\begin{figure}[htb]\n<<content>>\n\\end{figure}");
+Textpl.addTemplate("figcaption").tpl("\\caption{<<content>>}");
+Textpl.addTemplate("em").tpl("\\emph{<<content>>}");
