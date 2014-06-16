@@ -74,8 +74,8 @@ var addFunction = function(name, fn){
 
 
 
-	var matches = function(el,selector){
-		if(el.matches)
+  var matches = function(el,selector){
+    if(el.matches)
 			return el.matches(selector);
 		else if(el.mozMatchesSelector)
 			return el.mozMatchesSelector(selector);
@@ -92,9 +92,7 @@ function getTemplate(element){
     }else{
        tplmatch = templates['*default'];
     }
-		if(name=="img"){log("name"+tplmatch.length)}
     for(i = 0;i<tplmatch.length;i++){
-      // log(name+"; "+tplmatch[i].template+", "+tplmatch[i].selector);
       if(matches(element, tplmatch[i].selector)){
          template = tplmatch[i].template;
          break;
@@ -126,6 +124,45 @@ var render = function(element, vars){
 })(Mustache);
 
 
+Textpl.addFunction("link", function(t, render){
+		var t = brackets + t
+		var href = render(t);
+		var isLocal =  !/^(http)/.test(href) ;
+		var tpl = isLocal && "loc-link" || "syst-link";
+		return  render(brackets+tplStart + "#" + tpl + tplEnd + href + tplStart +"/" + tpl + tplEnd);
+
+		})
+Textpl.addFunction("loc-link", function(t, render){
+		return "\\hyperlink{"+render(t)+"}";
+});
+
+Textpl.addFunction("syst-link", function(t, render){
+				return "\\href{"+render(t)+"}";
+});
+
+Textpl.addFunction("nth", //function(){
+    //return 
+		function(t, render) {
+			//var curr = el;
+		 var n = parseInt(t);
+		 var el =  variables["element"];
+     var curr =el.children;
+		 var ret = getText(curr[n]);
+		 variables["element"] = el;
+		 return ret;
+   }
+  //}
+);
+
+Textpl.addFunction("attr", function(t, render){
+		 var el =  variables["element"];
+		 return el.getAttribute(t);
+//
+		});
+
+
+Textpl.addPartial("first", "<<#nth>>0<</nth>>")
+Textpl.addPartial("second", "<<#nth>>1<</nth>>")
 
 var Domtotex = (function(Textpl){
 	var M = {};
