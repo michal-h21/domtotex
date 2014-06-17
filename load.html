@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html manifest="cache.manifest">
+<head>
+	<meta charset="utf-8" />
+	<title>Convert web page to LaTeX</title>
+<script type="text/javascript" src="mustache.js"></script>
+<script type="text/javascript" src="domtotex.js"></script>
+<script type="text/javascript" src="textemplates.js"></script>
+<style type="text/css">
+	input#href{display:block;}
+	iframe{display:block;width:80%}
+
+</style>
+</head>
+<body>
+	<input id="href" />
+	<iframe id ="target" src="http://johnmacfarlane.net/pandoc/demo/example2.html" ></iframe>
+	<div id="result">
+	</div>
+	<script type="text/javascript">
+		var target = document.getElementById("target");
+		var href=document.getElementById("href");
+		var result=document.getElementById("result");
+		var process = function(url){
+			try{
+				target.src = url;
+				result.innerHTML = "<div class='start'>Loading: "+url+"</div>";
+			}
+			catch(e){
+				alert("chyba");
+			}
+		}
+		process(href.value);
+		href.onchange = function(){
+			process(href.value);
+		};
+target.onload=function(){
+	result.innerHTML = '<div class="process">Processing page</div>';
+	var t = target.contentDocument;
+	var c =  t.querySelector("body");
+	var pre = document.createElement('pre');
+	var tex = Domtotex.getText(c);
+	var text = document.createTextNode( tex );
+	pre.appendChild(text);
+	var child  = result.firstChild;
+	result.replaceChild(pre, child);
+	//result.innerHTML = 		"<pre>"+Domtotex.getText(c)+"</pre>"; 
+};
+	</script>
+</body>
+</html>
+
