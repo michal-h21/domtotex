@@ -241,11 +241,14 @@ function getText(element) {
     }
     myvariables["content"] =  text.join('');
     myvariables["element"] = element;
+    var id = element.getAttribute("id");
+		var addid = "";
+		if(id){addid = "\\hypertarget{"+id+"}{}";}
 
     if(display=='block')
-      return "\n" + Textpl.render(element, myvariables) + "\n";
+      return "\n" + Textpl.render(element, myvariables)+ addid + "\n";
     else
-      return Textpl.render(element, myvariables) ;
+      return Textpl.render(element, myvariables) + addid;
 }
 
   
