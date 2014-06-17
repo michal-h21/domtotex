@@ -66,6 +66,18 @@ Textpl.addTemplate("dl").tpl("\\begin{description}\n<<content>>\n\\end{descripti
 
 Textpl.addTemplate("dt").tpl("\\item[<<content>>]");
 
+Textpl.addTemplate("ul").tpl("\\begin{itemize}\n<<content>>\n\\end{itemize}")
+Textpl.addTemplate("ol").tpl("\\begin{enumerate}\n<<content>>\n\\end{enumerate}")
+Textpl.addTemplate("li").tpl("\n\\item <<content>>\n");
+
 Textpl.addTemplate("figure").tpl("\\begin{figure}[htb]\n<<content>>\n\\end{figure}");
+
 Textpl.addTemplate("figcaption").tpl("\\caption{<<content>>}");
-Textpl.addTemplate("em").tpl("\\emph{<<content>>}");
+Textpl.addTemplate("h2").tpl("\\subsection{<<content>>}");
+Textpl.addTemplate("h3").tpl("\\subsubsection{<<content>>}");
+Textpl.addTemplate("h4").tpl("\\paragraph{<<content>>}");
+Textpl.addTemplate("h5").tpl("\\textbf{<<content>>}\n\n");
+Textpl.addTemplate("h6").tpl("\\textbf{<<content>>}\n\n");
+
+Textpl.addTemplate("pre").tpl("\\begin{alltt}\n<<content>>\n\\end{alltt}");
+Textpl.addTemplate("code").tpl("\\texttt{<<content>>}");
