@@ -19,14 +19,17 @@ var templateMaker = (function(){
 	var par  = {};
 	var selector = "*";
 	var pos = null;
+	var escape=null;
 	var create = function(n){
     name = n;
 		selector = "*";
 		pos = null;
+		escape=null;
 		return this;
 	}
 	var position = function(p){pos = p; return this;}
 	var selector = function(s){selector = s; return this}
+	var escape = function(e){escape= e; return this}
 	var tpl  = function(t){
     var c = {"selector": selector, "template":t}; 
     var x = templates[name] || [];
@@ -83,10 +86,8 @@ var addFunction = function(name, fn){
 			return el.webkitMatchesSelector(selector);
 	}
 
-function getTemplate(element){
-    var tplmatch, template;
+function selectTemplate(element){
     var name = element.nodeName.toLowerCase() || element;
-		Mustache.escape = function(s){return s;}//latexEscape;
     if(templates[name]){
        tplmatch = templates[name];
     }else{
@@ -94,10 +95,16 @@ function getTemplate(element){
     }
     for(i = 0;i<tplmatch.length;i++){
       if(matches(element, tplmatch[i].selector)){
-         template = tplmatch[i].template;
-         break;
+				return tplmatch[i];			
       }  
     }
+}
+
+function getTemplate(element){
+    var tplmatch, template;
+		Mustache.escape = function(s){return s;}//latexEscape;
+		var tplmatch = selectTemplate(element);
+    template = tplmatch.template;
     template = brackets+template;
 		return template;
 }
@@ -112,6 +119,7 @@ var render = function(element, vars){
   M.loadTemplates = loadTemplates;
 	M.addTemplate = addTemplate;
   M.getTemplate = getTemplate;
+	M.selectTemplate   = selectTemplate;
 	M.tplStart		= tplStart;
 	M.brackets    = brackets;
 	M.tplEnd			= tplEnd;
@@ -230,7 +238,8 @@ function getText(element) {
 		var myvariables = {}//variables;
 		var display = getStyle(element,'display');
 		if(display =='none') return '';
-		var myescape = latexEscape;
+		var textpl = Textpl.selectTemplate(element);
+		var myescape = textpl.escape || latexEscape;
     //log(name+": "+ template);
     for (var i= 0, n= element.childNodes.length; i<n; i++) {
         var child= element.childNodes[i];
