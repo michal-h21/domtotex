@@ -133,6 +133,7 @@ Textpl.addFunction("link", function(t, render){
 
 		})
 Textpl.addFunction("loc-link", function(t, render){
+		var t = t.replace("#","");
 		return "\\hyperlink{"+render(t)+"}";
 });
 
@@ -240,6 +241,7 @@ function getText(element) {
     }
     myvariables["content"] =  text.join('');
     myvariables["element"] = element;
+
     if(display=='block')
       return "\n" + Textpl.render(element, myvariables) + "\n";
     else
