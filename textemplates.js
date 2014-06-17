@@ -80,9 +80,10 @@ Textpl.addTemplate("h5").tpl("\\textbf{<<content>>}\n\n");
 Textpl.addTemplate("h6").tpl("\\textbf{<<content>>}\n\n");
 
 Textpl.addTemplate("pre")
-				//.esc(function(s){return s;})
-				.tpl("\\begin{alltt}\n<<content>>\n\\end{alltt}");
+				.esc(function(s){return s;})
+				.tpl("\\begin{verbatim}\n<<content>>\n\\end{verbatim}");
 Textpl.addTemplate("code")
+				.esc(function(s){return s;})
 				.selector("pre code, h1 code, h2 code, h3 code, h4 code, h5 code, h6 code")
 				.tpl("<<content>>");
 Textpl.addTemplate("code").tpl("\\htmlcode{<<content>>}");
