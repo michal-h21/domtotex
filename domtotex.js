@@ -24,12 +24,12 @@ var templateMaker = (function(){
     name = n;
 		selector = "*";
 		pos = null;
-		escape=null;
+		escfn=null;
 		return this;
 	}
 	var position = function(p){pos = p; return this;}
 	var selector = function(s){selector = s; return this}
-	var escape = function(e){escape= e; return this}
+	var esc = function(e){escfn= e; return this}
 	var tpl  = function(t){
     var c = {"selector": selector, "template":t}; 
     var x = templates[name] || [];
@@ -239,7 +239,7 @@ function getText(element) {
 		var display = getStyle(element,'display');
 		if(display =='none') return '';
 		var textpl = Textpl.selectTemplate(element);
-		var myescape = textpl.escape || latexEscape;
+		var myescape = textpl.escfn || latexEscape;
     //log(name+": "+ template);
     for (var i= 0, n= element.childNodes.length; i<n; i++) {
         var child= element.childNodes[i];

@@ -79,7 +79,9 @@ Textpl.addTemplate("h4").tpl("\\paragraph{<<content>>}");
 Textpl.addTemplate("h5").tpl("\\textbf{<<content>>}\n\n");
 Textpl.addTemplate("h6").tpl("\\textbf{<<content>>}\n\n");
 
-Textpl.addTemplate("pre").tpl("\\begin{alltt}\n<<content>>\n\\end{alltt}");
+Textpl.addTemplate("pre")
+				//.esc(function(s){return s;})
+				.tpl("\\begin{alltt}\n<<content>>\n\\end{alltt}");
 Textpl.addTemplate("code")
 				.selector("pre code, h1 code, h2 code, h3 code, h4 code, h5 code, h6 code")
 				.tpl("<<content>>");
