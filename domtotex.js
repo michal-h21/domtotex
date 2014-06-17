@@ -19,7 +19,7 @@ var templateMaker = (function(){
 	var par  = {};
 	var selector = "*";
 	var pos = null;
-	var escape=null;
+	var escfn=null;
 	var create = function(n){
     name = n;
 		selector = "*";
@@ -31,7 +31,7 @@ var templateMaker = (function(){
 	var selector = function(s){selector = s; return this}
 	var esc = function(e){escfn= e; return this}
 	var tpl  = function(t){
-    var c = {"selector": selector, "template":t}; 
+    var c = {"selector": selector, "template":t, "escfn":escfn}; 
     var x = templates[name] || [];
 		if(pos)
       x.splice(pos, 0, c);
@@ -41,6 +41,7 @@ var templateMaker = (function(){
 	}
 	M.create = create;
 	M.selector = selector;
+	M.esc = esc;
 	M.tpl  = tpl;
 	return M;
 }
@@ -239,7 +240,8 @@ function getText(element) {
 		var display = getStyle(element,'display');
 		if(display =='none') return '';
 		var textpl = Textpl.selectTemplate(element);
-		var myescape = textpl.escfn || latexEscape;
+		var myescape = latexEscape;
+		if(textpl.escfn)myescape = textpl.escfn;
     //log(name+": "+ template);
     for (var i= 0, n= element.childNodes.length; i<n; i++) {
         var child= element.childNodes[i];
