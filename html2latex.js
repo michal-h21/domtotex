@@ -14,18 +14,21 @@ page.onConsoleMessage = function(msg){
 	console.log(msg);
 };
 console.log("% saved page: "+address);
-var traverse = "traverser.js";
+var traverse = "domtotex.js";//"traverser.js";
 var mustache = "mustache.js";
 page.open(address, function(st){
-  var injst = page.injectJs(traverse);//, function(){
 	page.injectJs(mustache);
+  page.injectJs(traverse);//, function(){
+	page.injectJs("textemplates.js");
     page.evaluate(function(){
-      var ti = document.querySelector("title")
+      var ti = document.querySelector("title");
+			var getText = Domtotex.getText;
       var title = getText(ti);
 			//var title=getText;
 			console.log("\\documentlass{scrartcl}");
 			console.log("\\usepackage{fontspec}");
-			latexCommand("title",title);
+			//latexCommand("title",title);
+			console.log("\\title{"+title+"}");
 			console.log("\\begin{document}");
 			var body = getText(document.querySelector("body"));
 			if(body.length > 0) {
