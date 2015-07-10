@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+slimerjs html2latex.js file://$(realpath $1)
+
