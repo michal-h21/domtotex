@@ -17,26 +17,40 @@ console.log("% saved page: "+address);
 var traverse = "domtotex.js";//"traverser.js";
 var mustache = "mustache.js";
 page.open(address, function(st){
-	page.injectJs(mustache);
-  page.injectJs(traverse);//, function(){
-	page.injectJs("textemplates.js");
-    page.evaluate(function(){
-      var ti = document.querySelector("title");
-			var getText = Domtotex.getText;
+  if(st == "success"){
+    page.injectJs(mustache);
+    page.injectJs(traverse);//, function(){
+    page.injectJs("textemplates.js");
+    var result = page.evaluate(function(){
+      console.log()
+        var ti = document.querySelector("title");
+      var getText = Domtotex.getText;
       var title = getText(ti);
-			//var title=getText;
-			console.log("\\documentlass{scrartcl}");
-			console.log("\\usepackage{fontspec}");
-			//latexCommand("title",title);
-			console.log("\\title{"+title+"}");
-			console.log("\\begin{document}");
-			var body = getText(document.querySelector("body"));
-			if(body.length > 0) {
-			   console.log(body);
-			}
-		});
+      //var title=getText;
+      var body = getText(document.querySelector("body"));
+      //console.log(body);
+      return {title: title, body: body};
+    });
+    var body = result.body;
+    var title = result.title;
+    if(body.length > 0) {
+      console.log("\\documentclass{scrartcl}");
+      console.log("\\usepackage{fontspec}");
+      //latexCommand("title",title);
+      console.log("\\title{"+title+"}");
+      console.log("\\begin{document}");
+      console.log(body);
+      console.log("\\end{document}");
+    } else {
+      console.log("Can't process the document body")
+    }
     phantom.exit();
-	//});
-  //phantom.exit();
+    //});
+    //phantom.exit();
+  }else{
+    console.log("Cannot load page "+address);
+    phantom.exit();
+  }
 });
 }
+
