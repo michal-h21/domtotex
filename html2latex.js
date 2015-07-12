@@ -23,7 +23,7 @@ page.open(address, function(st){
     page.injectJs("textemplates.js");
     var result = page.evaluate(function(){
       console.log()
-        var ti = document.querySelector("title");
+      var ti = document.querySelector("title");
       var getText = Domtotex.getText;
       var title = getText(ti);
       //var title=getText;
