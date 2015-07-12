@@ -35,7 +35,7 @@ page.open(address, function(st){
     var title = result.title;
     if(body.length > 0) {
       console.log("\\documentclass{scrartcl}");
-      console.log("\\usepackage{fontspec}");
+      console.log("\\usepackage{fontspec,hyperref}");
       //latexCommand("title",title);
       console.log("\\title{"+title+"}");
       console.log("\\begin{document}");
