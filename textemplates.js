@@ -37,7 +37,11 @@ var templates = {
 	}],
 	"msup": [{
 		"selector": "*",
-		"template": "<<>first>>^<<>second>>"
+		"template": "{<<>first>>}^{<<>second>>}"
+	}],
+	"msub": [{
+		"selector": "*",
+		"template": "{<<>first>>}_{<<>second>>}"
 	}],
 	"a": [{
 		"template": "<<#link>><<#attr>>href<</attr>><</link>>{<<content>>}",
@@ -87,3 +91,5 @@ Textpl.addTemplate("code")
 				.selector("pre code, h1 code, h2 code, h3 code, h4 code, h5 code, h6 code")
 				.tpl("<<content>>");
 Textpl.addTemplate("code").tpl("\\htmlcode{<<content>>}");
+
+Textpl.addTemplate('span').tpl('\\htmlspan[color=<<#style>>color<</style>>,weight=<<#style>>font-weight<</style>>,style=<<#style>>font-style<</style>>]{<<content>>}')
