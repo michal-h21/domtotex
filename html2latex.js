@@ -25,7 +25,10 @@ page.open(address, function(st){
       console.log()
       var ti = document.querySelector("title");
       var getText = Domtotex.getText;
-      var title = getText(ti);
+      var title = "Unnamed";
+      if(ti){
+        title = getText(ti);
+      }
       //var title=getText;
       var body = getText(document.querySelector("body"));
       //console.log(body);
