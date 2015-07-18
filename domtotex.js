@@ -157,7 +157,7 @@ Textpl.addFunction("nth", //function(){
 		 var n = parseInt(t);
 		 var el =  variables["element"];
      var curr =el.children;
-		 var ret = getText(curr[n]);
+		 var ret = Domtotex.getText(curr[n]);
 		 variables["element"] = el;
 		 return ret;
    }
@@ -170,6 +170,10 @@ Textpl.addFunction("attr", function(t, render){
 //
 		});
 
+Textpl.addFunction("style", function(t, render){
+  var el = variables["element"];
+  return Domtotex.getStyle(el,t);
+});
 
 Textpl.addPartial("first", "<<#nth>>0<</nth>>")
 Textpl.addPartial("second", "<<#nth>>1<</nth>>")
@@ -235,8 +239,11 @@ function reduceSpaces(t){
 
 function getText(element) {
     var text = [];
-		//var template = getTemplate(element);
 		var myvariables = {}//variables;
+    var saveCss =function(name){
+      myvariables[name] = getStyle(element, name);
+    };
+		//var template = getTemplate(element);
 		var display = getStyle(element,'display');
 		if(display =='none') return '';
 		var textpl = Textpl.selectTemplate(element);
@@ -250,12 +257,17 @@ function getText(element) {
         else if (child.nodeType===3)
             text.push(myescape(reduceSpaces(child.data)));
     }
-    myvariables["content"] =  text.join('');
-    myvariables["element"] = element;
+    // enable internal document links
     var id = element.getAttribute("id");
 		var addid = "";
 		if(id){addid = "\\hypertarget{"+id+"}{}";}
-
+    myvariables["content"] =  text.join('');
+    myvariables["element"] = element;
+    //saveCss("color");
+    //saveCss("background-color");
+    //saveCss("display");
+    // we add blank lines for block elements
+    console.log(Textpl.render(element, myvariables));
     if(display=='block')
       return "\n" + Textpl.render(element, myvariables)+ addid + "\n";
     else
